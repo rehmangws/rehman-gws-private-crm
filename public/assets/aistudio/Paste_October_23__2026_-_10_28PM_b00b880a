@@ -1,0 +1,2330 @@
+# REHMAN GWS — PRIVATE LEAD OPERATIONS CRM
+## Production-Grade Master Build Specification
+
+You are acting as a senior SaaS architect, senior full-stack engineer, Firebase architect, database engineer, UI/UX designer, mapping/GIS engineer, security engineer, QA engineer, and automation engineer.
+
+Your task is to BUILD, TEST, DEBUG, and COMPLETE a production-quality private CRM for:
+
+# REHMAN GWS
+
+This is not a public SaaS product.
+
+It is a PRIVATE ADMIN LEAD OPERATIONS SYSTEM designed primarily for one administrator, while keeping the architecture future-ready for additional authorized staff accounts.
+
+The application must function as the daily operating system for lead generation, lead management, follow-ups, sales activity, geographic lead research, and daily productivity.
+
+The central philosophy is:
+
+"Open CRM → Immediately see what matters → Work the highest-priority lead → Record the action → CRM remembers everything → CRM determines what should happen next."
+
+---
+
+# 0. CRITICAL DEVELOPMENT RULES
+
+Do not build a static dashboard.
+
+Do not build a visual-only prototype.
+
+Do not create fake buttons.
+
+Do not create fake database results.
+
+Do not create fake businesses.
+
+Do not fabricate phone numbers, emails, WhatsApp numbers, ratings, locations, or analytics.
+
+Do not mark external WhatsApp/email actions as successfully sent merely because a link was opened.
+
+Do not silently ignore failed operations.
+
+Do not leave major TODO placeholders where functional implementation is possible.
+
+Do not expose secrets in frontend source code.
+
+Do not make Google Maps or another paid API mandatory for the core CRM.
+
+Do not introduce unnecessary dependencies.
+
+Do not rewrite working parts of the existing project without first understanding them.
+
+FIRST inspect the existing repository/project.
+
+Before changing code:
+
+1. Inspect package.json.
+2. Inspect source structure.
+3. Inspect routing.
+4. Inspect existing Firebase configuration.
+5. Inspect environment configuration.
+6. Inspect existing styling/theme.
+7. Inspect existing authentication.
+8. Inspect existing components.
+9. Inspect build scripts.
+10. Inspect deployment configuration.
+11. Inspect current dependencies and versions.
+12. Identify existing errors before introducing changes.
+
+Preserve working REHMAN GWS branding and functionality.
+
+Prefer incremental changes over destructive rewrites.
+
+---
+
+# 1. ERROR-PREVENTION / QUALITY GATE
+
+Reliability is a critical requirement.
+
+After EVERY major implementation phase:
+
+1. Save files.
+2. Run the project's build command.
+3. Run TypeScript/type checking where applicable.
+4. Run linting where configured.
+5. Fix compilation errors.
+6. Fix missing imports.
+7. Fix invalid exports.
+8. Fix dependency/version conflicts.
+9. Fix routing errors.
+10. Check runtime console errors.
+11. Check Firebase initialization.
+12. Check environment-variable handling.
+13. Check desktop layout.
+14. Check tablet layout.
+15. Check mobile layout.
+16. Test important user interactions.
+17. Verify empty/loading/error states.
+18. Verify that existing working features still work.
+
+DO NOT continue to the next major phase while known blocking build/type/runtime errors remain.
+
+If a dependency is unnecessary, do not add it.
+
+Before installing a package, determine whether the existing stack can already perform the task.
+
+Do not randomly upgrade dependencies.
+
+Use versions compatible with the existing project.
+
+If an external service is unavailable or unconfigured, the rest of the CRM must continue working.
+
+Use graceful degradation.
+
+---
+
+# 2. PREFERRED TECHNICAL ARCHITECTURE
+
+First detect the existing stack and preserve it when reasonable.
+
+For a new project, prefer a stable production stack such as:
+
+- React
+- TypeScript
+- Vite
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Hosting
+- Firebase-supported backend/server functions only where necessary
+- CSS/Tailwind or the project's existing styling architecture
+- Reusable component architecture
+
+Do not migrate frameworks unnecessarily.
+
+Use TypeScript strictness where practical.
+
+Separate:
+
+components
+pages
+layouts
+features
+hooks
+services
+firebase
+types
+utils
+constants
+validation
+styles
+config
+
+Avoid giant components.
+
+Keep business logic out of visual components where practical.
+
+---
+
+# 3. COST-FIRST ARCHITECTURE
+
+I am initially building this CRM with the lowest possible operating cost.
+
+Core CRM functionality should NOT depend on paid APIs.
+
+The following must work without Google Maps Platform credentials:
+
+- Authentication
+- Lead CRUD
+- Categories
+- Statuses
+- Follow-ups
+- Tasks
+- Daily targets
+- Activity history
+- Pipeline
+- Analytics
+- CSV import/export
+- Manual map browsing
+- Geographic lead placement
+- Map markers for leads already stored in CRM
+- Lead creation from a selected map position
+
+Paid/external lead-data integrations must be OPTIONAL.
+
+If an optional API is not configured:
+
+Show a professional integration state such as:
+
+"External Lead Discovery Not Configured"
+
+Do not break the application.
+
+---
+
+# 4. PRIVATE AUTHENTICATION
+
+There must be NO public signup.
+
+Use Firebase Authentication.
+
+Only authorized admin accounts may enter the CRM.
+
+Unauthenticated users must be redirected to login.
+
+Authorization must exist at the Firestore Security Rules level.
+
+Never depend only on:
+
+if (user.email === ...)
+
+inside frontend JavaScript.
+
+Implement a secure allowlist/role strategy.
+
+Architecture should support:
+
+admin
+future staff/member roles
+
+but initially optimize for one private admin.
+
+Add:
+
+Login
+Session restoration
+Protected routes
+Loading state during auth verification
+Unauthorized state
+Sign Out
+
+---
+
+# 5. DESIGN SYSTEM
+
+Use the uploaded REHMAN GWS Admin Dashboard screenshot as the PRIMARY visual identity reference.
+
+Preserve:
+
+- Deep black/midnight navy background
+- Subtle blue undertone
+- Dark navy cards
+- Thin blue/slate borders
+- Electric blue accent
+- Cyan accent
+- Emerald success
+- Amber warning
+- Red critical/overdue
+- Premium shadows
+- Restrained glow
+- Rounded surfaces
+- High-density professional UI
+
+Upgrade it into a premium modern SaaS CRM.
+
+The product should visually resemble a serious professional lead operations platform rather than a generic admin template.
+
+Use a very subtle background grid where appropriate.
+
+Prioritize MacBook/laptop presentation.
+
+Avoid:
+
+- White dashboard backgrounds
+- Cartoon styling
+- excessive gradients
+- excessive neon
+- giant empty cards
+- Bootstrap-template appearance
+- unnecessary decorative elements
+
+Use consistent design tokens for:
+
+background
+surface
+surface-hover
+border
+text-primary
+text-secondary
+muted
+primary
+success
+warning
+danger
+radius
+shadow
+spacing
+
+---
+
+# 6. APPLICATION SHELL
+
+Create a premium collapsible left sidebar.
+
+Navigation:
+
+Command Center
+Leads
+Lead Map
+Lead Generator
+Today's Tasks
+Follow-ups
+Pipeline
+Categories
+Activity
+Analytics
+Import / Export
+Settings
+
+Desktop:
+Persistent collapsible sidebar.
+
+Tablet:
+Compact sidebar.
+
+Mobile:
+Drawer navigation.
+
+Top header:
+
+REHMAN GWS branding
+Global Search
+Quick Add Lead
+Notifications
+Sync/connection state
+Admin profile
+Sign Out
+
+---
+
+# 7. COMMAND CENTER
+
+Default page:
+
+COMMAND CENTER
+
+Dynamic greeting:
+
+Good Morning
+Good Afternoon
+Good Evening
+
+Subtitle:
+
+"Here's what needs your attention today."
+
+Never display fabricated KPI numbers.
+
+All KPI values must come from real stored data or clearly display zero.
+
+KPI cards:
+
+Total Leads
+New Leads
+Today's Target
+Completed Today
+Remaining Today
+Follow-ups Today
+Overdue
+Hot Leads
+Interested
+Won / Clients
+
+Add tasteful visual indicators and progress animations.
+
+Example:
+
+Today's Target
+50
+
+Completed
+32
+
+Remaining
+18
+
+64%
+
+---
+
+# 8. TODAY'S WORK ENGINE
+
+Create a major section:
+
+TODAY'S WORK
+
+Calculate:
+
+Contact target
+Completed actions
+Remaining
+Calls due
+WhatsApps due
+Emails due
+Follow-ups due
+Overdue follow-ups
+
+Then create:
+
+PRIORITY QUEUE
+
+The queue should use transparent deterministic rules.
+
+Examples:
+
+URGENT
+Follow-up overdue
+
+HIGH
+Interested lead with follow-up due today
+
+HIGH
+Hot Lead awaiting response
+
+MEDIUM
+No response for configured number of days
+
+NORMAL
+New lead never contacted
+
+Every recommendation must explain WHY it exists.
+
+Example:
+
+HIGH PRIORITY
+
+ABC Restaurant
+
+Recommended:
+Follow up via WhatsApp
+
+Why:
+Follow-up overdue by 2 days
+Previously marked Interested
+
+---
+
+# 9. START MY DAY — FOCUS MODE
+
+This is a core feature.
+
+Create a large:
+
+START MY DAY
+
+button.
+
+It launches a distraction-free lead workflow.
+
+Display ONE lead/task at a time.
+
+Example:
+
+Lead 1 of 27
+
+ABC Restaurant
+
+Restaurant
+Dubai, UAE
+
+Phone
+WhatsApp
+Email
+Website
+
+Last Contact:
+2 days ago — WhatsApp opened/recorded
+
+Next Follow-up:
+Today — 11:30 AM
+
+NEXT BEST ACTION
+
+Follow up via WhatsApp
+
+WHY?
+
+Interested lead
+Follow-up due today
+
+Actions:
+
+Call
+WhatsApp
+Email
+Mark Contacted
+No Answer
+Interested
+Hot Lead
+Not Interested
+Add Note
+Schedule Follow-up
+Skip
+
+When an action is completed:
+
+- record activity
+- update relevant lead timestamps
+- update status when appropriate
+- complete relevant follow-up when appropriate
+- calculate next recommended action
+- optionally create the next follow-up according to rules
+- update daily progress
+- automatically load the next lead
+
+Progress:
+
+12 / 27 completed
+
+Allow:
+
+Previous
+Skip
+End Session
+
+Never falsely mark a WhatsApp/email message as sent just because an external application was opened.
+
+Use accurate activity labels.
+
+---
+
+# 10. COMPLETE LEAD DATABASE
+
+Create a scalable Leads page.
+
+Columns:
+
+Business / Lead
+Category
+Contact Person
+Phone
+WhatsApp
+Email
+Website
+Location
+Status
+Last Contact
+Next Follow-up
+Priority
+Source
+Actions
+
+Features:
+
+Server-friendly pagination/cursor pagination
+Sorting
+Search
+Advanced filters
+Saved views
+Column visibility
+Bulk selection
+Responsive horizontal table scrolling
+Loading skeletons
+Empty states
+Error states
+
+Do not fetch thousands of documents just to display one page.
+
+---
+
+# 11. GLOBAL SEARCH
+
+Search:
+
+Business name
+Contact person
+Phone
+WhatsApp
+Email
+Website/domain
+Address
+City
+Country
+Tags
+
+Implement search in a scalable manner.
+
+Do not perform expensive full-database client filtering as the primary long-term solution.
+
+---
+
+# 12. LEAD STATUSES
+
+Default customizable statuses:
+
+New
+To Contact
+Contacted
+Called
+No Answer
+WhatsApp Opened
+WhatsApp Sent/Confirmed
+Email Opened
+Email Sent/Confirmed
+Follow-up
+Interested
+Hot Lead
+Qualified
+Meeting Scheduled
+Proposal Sent
+Negotiating
+Not Interested
+Won / Client
+Lost
+Do Not Contact
+
+Differentiate between:
+
+"external communication link opened"
+
+and
+
+"communication confirmed/sent"
+
+where actual sending cannot be verified.
+
+Every status change must generate an activity entry.
+
+---
+
+# 13. PRIORITY MODEL
+
+Priorities:
+
+Low
+Normal
+Medium
+High
+Urgent
+
+Hot Lead can exist as a lead state/flag in addition to priority.
+
+Use transparent rules.
+
+Possible scoring factors:
+
+Overdue follow-up
+Follow-up today
+Interested
+Hot Lead
+Never contacted
+Days since last contact
+No response
+Manual priority
+Recent positive activity
+
+Show:
+
+Priority: HIGH
+
+Why?
+
++ Follow-up overdue
++ Interested
++ No activity for 3 days
+
+Do not use an unexplained AI score.
+
+---
+
+# 14. SMART NEXT ACTION ENGINE
+
+Create deterministic rules first.
+
+Examples:
+
+New:
+Contact lead.
+
+No Answer:
+Retry or use another available method.
+
+WhatsApp contact:
+Follow up after configured interval.
+
+Email:
+Follow up after configured interval.
+
+Interested:
+Prioritize and schedule follow-up.
+
+Overdue:
+Contact today.
+
+Hot Lead:
+Move near top of queue.
+
+Won:
+No sales follow-up unless manually scheduled.
+
+Do Not Contact:
+Exclude from normal outreach queues.
+
+Allow administrator override.
+
+Store enough metadata to explain why the action was recommended.
+
+---
+
+# 15. ADD LEAD
+
+Create:
+
++ ADD LEAD
+
+Fields:
+
+Business Name
+Contact Person
+Category
+Phone
+WhatsApp
+Email
+Website
+Address
+City
+State
+Country
+Latitude
+Longitude
+Map Location
+External Place ID
+Lead Source
+Status
+Priority
+Notes
+Follow-up Date
+Follow-up Time
+Tags
+
+Provide:
+
+"Use phone as WhatsApp"
+
+but never assume phone = WhatsApp automatically.
+
+Validate:
+
+email
+phone
+URL
+required fields
+coordinates
+
+Normalize values for duplicate detection.
+
+---
+
+# 16. LEAD PROFILE
+
+Create a premium lead detail page.
+
+Header:
+
+Business name
+Category
+Status
+Priority
+Source
+
+Contact:
+
+Contact person
+Phone
+WhatsApp
+Email
+Website
+Address
+
+Metadata:
+
+Created
+Updated
+Last Contact
+Next Follow-up
+Source
+Assigned To (future-ready)
+
+Actions:
+
+CALL
+WHATSAPP
+EMAIL
+ADD NOTE
+FOLLOW-UP
+CHANGE STATUS
+EDIT
+
+Include:
+
+Activity Timeline
+Notes
+Follow-ups
+Location map
+Priority reasons
+Next Best Action
+Related metadata
+
+---
+
+# 17. ACTIVITY ARCHITECTURE
+
+Do NOT store unlimited activities inside the lead document.
+
+Use a scalable activity collection/subcollection architecture.
+
+Activity types:
+
+lead_created
+lead_updated
+status_changed
+priority_changed
+call_started
+call_recorded
+whatsapp_opened
+whatsapp_confirmed
+email_opened
+email_confirmed
+note_added
+followup_created
+followup_updated
+followup_completed
+lead_won
+lead_lost
+imported
+duplicate_detected
+map_location_updated
+
+Store:
+
+leadId
+type
+timestamp
+actorId
+metadata
+previousValue where relevant
+newValue where relevant
+
+Use server timestamps.
+
+---
+
+# 18. FOLLOW-UP ENGINE
+
+Views:
+
+Today
+Tomorrow
+This Week
+Upcoming
+Overdue
+Completed
+
+Follow-up fields:
+
+Lead
+Date/time
+Action Type
+Notes
+Priority
+Status
+Created At
+Completed At
+
+Action types:
+
+Call
+WhatsApp
+Email
+Meeting
+General Follow-up
+Custom
+
+If current time passes due time and follow-up remains incomplete:
+
+display as OVERDUE.
+
+Never delete it automatically.
+
+---
+
+# 19. ADVANCED BUILT-IN WORLD LEAD MAP
+
+Create a major module:
+
+# LEAD MAP
+
+The administrator should NOT need to open Google Maps for ordinary geographic lead management.
+
+CORE MAP MUST NOT REQUIRE A GOOGLE MAPS API KEY.
+
+Use an OpenStreetMap-compatible map architecture and an appropriate open-source frontend mapping library compatible with the current project.
+
+The map must support:
+
+World view
+Country navigation
+City navigation
+Zoom
+Pan
+Current viewport
+Markers
+Marker clustering
+Lead markers
+Popup cards
+Coordinate selection
+Full-screen mode
+Responsive controls
+
+The map should visually match the premium dark REHMAN GWS theme.
+
+IMPORTANT:
+
+Do not assume map tiles or geocoding services have unlimited free usage.
+
+Keep providers configurable.
+
+Respect provider attribution and usage requirements.
+
+---
+
+# 20. MAP LEAD EXPLORER
+
+Create a split-screen lead exploration experience.
+
+LEFT SIDE:
+
+Search/filter panel.
+
+CENTER:
+
+Large interactive map.
+
+OPTIONAL RIGHT SIDE:
+
+Selected lead/location details.
+
+Filters:
+
+Country
+City
+Category
+Status
+Priority
+Source
+Has Phone
+Has WhatsApp
+Has Email
+Never Contacted
+Interested
+Hot Leads
+Follow-up Due
+Overdue
+
+Display CRM leads as markers.
+
+Marker color should communicate state.
+
+Examples:
+
+Blue = New
+Cyan = Contacted
+Amber = Follow-up
+Emerald = Interested/Won
+Red = Overdue/Urgent
+
+Create a legend.
+
+Clicking a marker opens:
+
+Business name
+Category
+Location
+Status
+Priority
+Phone if available
+WhatsApp if available
+Email if available
+Next follow-up
+
+Actions:
+
+View Lead
+Call
+WhatsApp
+Add Note
+Schedule Follow-up
+
+---
+
+# 21. MANUAL MAP LEAD CAPTURE
+
+This feature is essential.
+
+I should be able to browse the world map and manually create leads without leaving the CRM.
+
+Provide:
+
+ADD LEAD FROM MAP
+
+Workflow:
+
+1. Navigate to country/city.
+2. Click/select a map position.
+3. Drop temporary marker.
+4. Open lead creation drawer/modal.
+5. Coordinates are automatically captured.
+6. I enter the business/contact information I actually know.
+7. Save lead.
+8. Marker becomes a CRM lead marker.
+
+If reverse-geocoding data is available from the configured provider, prefill location fields.
+
+Never fabricate business information.
+
+If a provider cannot identify a business at that location, simply allow manual entry.
+
+---
+
+# 22. MAP SEARCH
+
+Provide map search architecture for:
+
+Country
+City
+Area
+Address/location
+
+Use a configurable geocoding provider.
+
+Do not hard-code a paid Google dependency.
+
+If free/public geocoding is used during development:
+
+- respect provider policies
+- debounce searches
+- cache appropriate results
+- avoid excessive requests
+- display attribution where required
+- do not assume production-scale unlimited usage
+
+Provide an abstraction such as:
+
+MapProvider
+GeocodingProvider
+BusinessDiscoveryProvider
+
+This allows providers to be replaced later.
+
+---
+
+# 23. IMPORTANT MAP DATA LIMITATION
+
+The base map itself does NOT automatically mean there is a complete global business lead database.
+
+Do not pretend otherwise.
+
+Map browsing and manual lead creation should work without paid lead APIs.
+
+Business discovery must use legitimate configured data sources.
+
+If no business discovery provider is configured:
+
+show:
+
+"Business discovery integration is not configured. You can still browse the map and add leads manually."
+
+Never generate imaginary nearby businesses.
+
+---
+
+# 24. LEAD GENERATOR
+
+Create:
+
+LEAD GENERATOR
+
+Provider architecture should support future integrations.
+
+Search inputs:
+
+Country
+City
+Area
+Business Category / Query
+Result limit
+Duplicate protection
+
+Results should be reviewed before import where practical.
+
+Fields may include, only when genuinely returned:
+
+Business Name
+External Place ID
+Category
+Additional Categories
+Phone
+Website
+Address
+City
+Country
+Latitude
+Longitude
+Map URL
+Rating
+Review Count
+Business Status
+
+Unavailable data:
+
+Not Available
+
+Never fabricate missing fields.
+
+---
+
+# 25. OPTIONAL GOOGLE PLACES INTEGRATION
+
+Google Places must be OPTIONAL, not required for the core CRM.
+
+When valid Google Maps Platform configuration exists, provide an adapter/integration for supported official Places methods.
+
+Keep sensitive server-side credentials in secure backend configuration where appropriate.
+
+Never scrape Google Maps pages.
+
+If credentials are absent:
+
+Do not break the app.
+
+Display:
+
+Google Places — Not Configured
+
+with setup instructions.
+
+---
+
+# 26. DUPLICATE ENGINE
+
+Before creating/importing a lead compare:
+
+1. External/Google Place ID
+2. Normalized phone
+3. Normalized website/domain
+4. Normalized business name + normalized address
+
+Return:
+
+Unique
+Possible Duplicate
+Duplicate
+
+Do not automatically create obvious duplicates.
+
+Allow:
+
+View Existing
+Cancel
+Merge/Update where safe
+Create Anyway only when appropriate
+
+Record duplicate-related actions.
+
+---
+
+# 27. CATEGORIES
+
+Provide editable category management.
+
+Seed useful categories including:
+
+Restaurants
+Cafes
+Coffee Shops
+Hotels
+Salons
+Beauty Salons
+Barbers
+Spas
+Real Estate Agencies
+Property Management
+Warehouses
+Logistics
+Shipping
+Construction
+Contractors
+Manufacturing
+Factories
+Recruitment
+Staffing
+Cleaning
+Maintenance
+Security
+Car Rentals
+Car Dealers
+Auto Workshops
+Gyms
+Fitness Centers
+Clinics
+Dental Clinics
+Medical Centers
+Pharmacies
+Schools
+Nurseries
+Training Centers
+Travel Agencies
+Tourism
+Supermarkets
+Grocery Stores
+Retail
+Fashion
+Electronics
+Furniture
+E-commerce
+Offices
+Corporate Companies
+IT Companies
+Software Companies
+Marketing Agencies
+Accounting Firms
+Law Firms
+Event Companies
+Catering
+Laundry
+Home Services
+
+These are seed data, NOT hard-coded limitations.
+
+Allow:
+
++ CREATE CATEGORY
+Edit
+Archive
+Reorder where practical
+
+---
+
+# 28. SOURCES
+
+Default:
+
+Manual
+Map
+Google Places
+Website
+Facebook
+Instagram
+Referral
+CSV Import
+Other
+
+Source must be stored on each lead.
+
+---
+
+# 29. QUICK ACTIONS
+
+Lead quick actions:
+
+Call
+WhatsApp
+Email
+View
+Edit
+Note
+Follow-up
+Change Status
+Archive/Delete
+
+Call:
+tel:
+
+WhatsApp:
+proper WhatsApp URL based on normalized confirmed WhatsApp number.
+
+Email:
+mailto: unless a real email integration exists.
+
+Opening an external URL does NOT prove successful communication.
+
+Record the correct action type.
+
+---
+
+# 30. DAILY TARGETS
+
+Settings:
+
+Daily Contact Target
+Call Target
+WhatsApp Target
+Email Target
+New Lead Review Target
+Follow-up Target
+
+Dashboard calculates real progress.
+
+Example:
+
+DAILY TARGET
+
+32 / 50
+
+64%
+
+18 remaining
+
+Use actual activity records.
+
+---
+
+# 31. END OF DAY
+
+Create:
+
+TODAY'S PERFORMANCE
+
+Show:
+
+Target
+Completed actions
+Unique leads contacted
+Calls
+WhatsApp actions
+Email actions
+Follow-ups completed
+Follow-ups created
+Interested leads
+Hot leads
+Won leads
+New leads
+Imported leads
+Map-created leads
+Discovery leads
+Remaining work
+Completion %
+
+No fabricated analytics.
+
+---
+
+# 32. SMART TIME VIEWS
+
+Create:
+
+Today
+Tomorrow
+This Week
+Overdue
+
+Each view should be driven by real follow-up/task timestamps.
+
+---
+
+# 33. PIPELINE
+
+Kanban:
+
+New
+Contacted
+Follow-up
+Interested
+Qualified
+Proposal
+Negotiating
+Won
+Lost
+
+Support drag-and-drop.
+
+After drop:
+
+Validate transition if necessary.
+Update Firestore.
+Create activity entry.
+Update UI optimistically only when safe.
+Rollback/show error on failed write.
+
+---
+
+# 34. ADVANCED FILTERS
+
+Filters:
+
+Category
+Country
+City
+Status
+Priority
+Source
+Has Phone
+Has WhatsApp
+Has Email
+Has Website
+Follow-up date
+Created date
+Last contact
+Hot
+Never Contacted
+Overdue
+
+Allow combinations.
+
+Provide:
+
+Clear Filters
+
+Display active filters visibly.
+
+---
+
+# 35. SAVED VIEWS
+
+Defaults:
+
+All Leads
+New
+Today's Leads
+Need Contact
+No Response
+Follow-up Today
+Overdue
+Interested
+Hot Leads
+Won
+Never Contacted
+
+Architecture should allow custom saved views.
+
+---
+
+# 36. BULK OPERATIONS
+
+Allow multi-select.
+
+Actions:
+
+Change Status
+Change Category
+Set Priority
+Schedule Follow-up
+Add Tag
+Export
+Archive/Delete
+
+Destructive operations require confirmation.
+
+Show count:
+
+Delete 17 selected leads?
+
+Prefer archive/soft-delete.
+
+---
+
+# 37. NOTES
+
+Unlimited timestamped notes stored scalably.
+
+Each note:
+
+author
+createdAt
+content
+
+Quick-add from:
+
+Lead profile
+Start My Day
+Lead table where appropriate
+
+---
+
+# 38. NOTIFICATION CENTER
+
+Header bell.
+
+Notifications:
+
+Follow-up due
+Overdue
+Urgent task
+Daily progress milestone
+Discovery completed
+Import completed
+Import errors
+System/integration errors
+
+Support:
+
+Unread/read
+Mark as read
+View related lead/task
+Mark all read where practical
+
+---
+
+# 39. ANALYTICS
+
+Dark premium charts:
+
+Leads over time
+Leads by category
+Leads by source
+Leads by country
+Leads by city
+Leads by status
+Contact activity
+Interest progression
+Won leads
+Daily activity
+Weekly activity
+Follow-up completion
+Pipeline distribution
+
+Use actual stored data.
+
+Avoid querying the complete database repeatedly for every dashboard render.
+
+Design scalable aggregation strategy.
+
+---
+
+# 40. CSV IMPORT
+
+Build a real import wizard.
+
+Steps:
+
+Upload CSV
+Preview
+Map columns
+Validate
+Normalize
+Detect duplicates
+Review errors
+Import
+
+Show:
+
+Valid rows
+Invalid rows
+Duplicates
+Rows to import
+
+Never silently discard invalid rows.
+
+---
+
+# 41. CSV EXPORT
+
+Allow exporting:
+
+All visible filtered results
+Selected leads
+
+Use useful normalized headers.
+
+---
+
+# 42. FIRESTORE ARCHITECTURE
+
+Design scalable collections such as:
+
+users
+leads
+activities
+followUps
+categories
+statuses
+dailyTargets
+notifications
+settings
+savedViews
+leadDiscoveryJobs
+automationRuns
+imports
+
+Lead fields may include:
+
+id
+businessName
+businessNameNormalized
+contactPerson
+categoryId
+categoryName
+phone
+phoneNormalized
+whatsapp
+whatsappNormalized
+whatsappConfirmed
+email
+website
+websiteDomain
+address
+city
+state
+country
+latitude
+longitude
+externalPlaceId
+googlePlaceId
+googleMapsUrl
+source
+status
+priority
+isHot
+tags
+notesSummary
+createdAt
+updatedAt
+lastContactAt
+nextFollowUpAt
+wonAt
+lostAt
+archivedAt
+createdBy
+updatedBy
+
+Do not place unlimited history arrays inside lead documents.
+
+---
+
+# 43. INDEX STRATEGY
+
+Create/document required Firestore indexes for common combinations.
+
+Examples may include combinations involving:
+
+status + nextFollowUpAt
+priority + nextFollowUpAt
+country + city
+categoryId + status
+source + createdAt
+archivedAt + createdAt
+
+Only create indexes actually required by implemented queries.
+
+Document them.
+
+---
+
+# 44. FIRESTORE SAFETY
+
+Use server timestamps.
+
+Handle failed writes.
+
+Handle permission errors.
+
+Handle offline/network states appropriately.
+
+Use pagination.
+
+Avoid unnecessary reads.
+
+Unsubscribe listeners correctly.
+
+Prevent duplicate submissions.
+
+Disable buttons while writes are processing.
+
+Use transaction/batch writes where atomicity is required.
+
+---
+
+# 45. SECURITY RULES
+
+Create production-oriented Firestore Security Rules.
+
+Private CRM data must be accessible only by authenticated authorized users.
+
+Protect all sensitive collections.
+
+Do not allow public read/write access.
+
+Validate important fields where practical.
+
+Document deployment of rules.
+
+---
+
+# 46. AUTOMATION ARCHITECTURE
+
+Settings:
+
+Auto Lead Discovery
+Target countries
+Target cities
+Categories
+Maximum leads/run
+Maximum API usage/budget
+Schedule
+Duplicate protection
+
+Schedules:
+
+Manual
+Daily
+Selected Days
+Weekly
+
+Scheduled work must be server-side where required.
+
+Never depend on the browser remaining open.
+
+Do not create uncontrolled paid API loops.
+
+Record automation runs:
+
+startedAt
+completedAt
+status
+provider
+requestedCount
+createdCount
+duplicateCount
+errorCount
+errorSummary
+
+If backend scheduling requires billing or a service not available on a free tier, clearly mark it as OPTIONAL and do not break manual CRM operation.
+
+---
+
+# 47. FOLLOW-UP RULE SETTINGS
+
+Editable rules:
+
+No Answer → +1 day
+WhatsApp → +2 days
+Email → +3 days
+Interested → +1 day
+
+These are defaults only.
+
+Administrator can change them.
+
+Recommended actions should use these settings.
+
+---
+
+# 48. SETTINGS
+
+Sections:
+
+Profile
+CRM Preferences
+Daily Targets
+Follow-up Rules
+Map
+Lead Discovery
+Categories
+Statuses
+Automation
+Integrations
+Google API Configuration
+Import / Export
+Security
+Data Management
+
+For integrations display states:
+
+Connected
+Not Configured
+Error
+Disabled
+
+Never display secrets after saving them.
+
+---
+
+# 49. RESPONSIVENESS
+
+Primary:
+
+MacBook
+Laptop
+Desktop
+
+Secondary:
+
+Tablet
+Mobile
+
+Mobile behavior:
+
+Sidebar → drawer
+Wide table → controlled horizontal scroll or card view
+Map → full-screen friendly
+Filters → bottom sheet/drawer
+Lead profile → stacked layout
+Start My Day → touch-friendly controls
+
+---
+
+# 50. MICRO-INTERACTIONS
+
+Use restrained:
+
+hover transitions
+button feedback
+skeletons
+progress animation
+modal transitions
+dropdown transitions
+toast notifications
+status transitions
+
+Animations should be fast and professional.
+
+Respect reduced-motion preferences.
+
+---
+
+# 51. ACCESSIBILITY
+
+Use:
+
+Semantic HTML
+Keyboard navigation
+Visible focus states
+Accessible labels
+Adequate contrast
+ARIA only where needed
+Meaningful button labels
+
+Do not rely on color alone for important status information.
+
+---
+
+# 52. EMPTY STATES
+
+Examples:
+
+"No follow-ups due today. You're all caught up."
+
+"No leads match these filters."
+
+"No leads have been placed on the map."
+
+"No external lead discovery provider is configured."
+
+"No activity has been recorded for this lead."
+
+Every empty state should provide the most useful next action where appropriate.
+
+---
+
+# 53. ERROR STATES
+
+Create clear states for:
+
+Network unavailable
+Firebase permission denied
+Authentication expired
+API unavailable
+API quota exceeded
+Map provider unavailable
+Import failed
+Invalid CSV
+Failed Firestore write
+Failed data load
+Missing environment configuration
+
+Provide:
+
+Retry
+
+where appropriate.
+
+Never leave an infinite spinner.
+
+---
+
+# 54. LOADING STATES
+
+Use skeleton loaders for:
+
+Dashboard
+Lead table
+Lead detail
+Follow-ups
+Map data
+Analytics
+
+Prevent layout jumps where possible.
+
+---
+
+# 55. PERFORMANCE
+
+The CRM should remain responsive with thousands of leads.
+
+Use:
+
+Cursor pagination
+Query limits
+Indexes
+Lazy loading
+Code splitting where appropriate
+Debounced input
+Memoization only where useful
+Marker clustering
+Map viewport filtering where appropriate
+Efficient listeners
+Cached configuration data
+
+Do not subscribe to the entire lead collection globally.
+
+---
+
+# 56. DATA SAFETY
+
+Prefer:
+
+Archive / soft delete
+
+before permanent deletion.
+
+Confirmation required for destructive actions.
+
+Keep audit trail for important changes.
+
+Prevent accidental double-click submissions.
+
+---
+
+# 57. OFFLINE/FAILURE RESILIENCE
+
+The UI should clearly distinguish:
+
+Saved
+Saving
+Failed
+Offline
+
+Do not tell the administrator data was saved when Firestore write failed.
+
+Provide retry where appropriate.
+
+---
+
+# 58. DATA VALIDATION
+
+Use shared validation logic.
+
+Normalize:
+
+phone
+WhatsApp
+email
+website/domain
+business name where useful
+
+Trim text.
+
+Validate URLs.
+
+Do not allow obviously invalid email formats.
+
+Do not corrupt existing records when optional fields are blank.
+
+---
+
+# 59. ENVIRONMENT CONFIGURATION
+
+Provide a clean environment example file.
+
+Example architecture:
+
+Firebase public client configuration
+Optional backend credentials
+Optional Google Places configuration
+Optional map/geocoding provider configuration
+
+Do NOT commit private secrets.
+
+Clearly document which values are:
+
+required
+optional
+frontend-safe
+server-only
+
+Core CRM should run without Google Places credentials.
+
+---
+
+# 60. MAP PROVIDER ABSTRACTION
+
+Implement map-related services behind abstractions so providers can change later.
+
+Example conceptual interfaces:
+
+Map Rendering Provider
+Geocoding Provider
+Reverse Geocoding Provider
+Business Discovery Provider
+
+The map UI must not be tightly coupled to Google.
+
+The core map should use an open mapping approach.
+
+---
+
+# 61. OPTIONAL FUTURE INTEGRATIONS
+
+Keep architecture future-ready for:
+
+Google Places
+Email provider
+WhatsApp Business API
+Compliant business data provider
+Calendar
+Additional staff users
+
+Do not implement fake versions of these integrations.
+
+---
+
+# 62. UI FEEDBACK
+
+For every important operation provide meaningful feedback.
+
+Examples:
+
+Lead created
+Lead updated
+Follow-up scheduled
+Follow-up completed
+Status updated
+Note saved
+Lead archived
+Import completed
+Duplicate detected
+
+For failure:
+
+Could not save lead.
+Retry.
+
+---
+
+# 63. DEVELOPMENT PHASES
+
+Implement sequentially.
+
+## PHASE 0 — AUDIT
+
+Inspect project.
+
+Report:
+
+Current stack
+Current dependencies
+Existing functionality
+Existing errors
+Firebase state
+Files to preserve
+Recommended implementation plan
+
+Do not start by blindly replacing everything.
+
+## PHASE 1 — FOUNDATION
+
+Application shell
+Theme
+Responsive layout
+Authentication
+Protected routes
+Error boundaries
+Reusable UI primitives
+
+Run build/tests/checks.
+
+## PHASE 2 — DATA
+
+Firestore models
+Services
+Security architecture
+Categories
+Statuses
+Lead CRUD
+Validation
+Duplicate utilities
+
+Run build/tests/checks.
+
+## PHASE 3 — LEADS
+
+Lead table
+Add/Edit
+Profile
+Activity timeline
+Search
+Filters
+Saved views
+
+Run build/tests/checks.
+
+## PHASE 4 — PRODUCTIVITY
+
+Follow-ups
+Today
+Tomorrow
+Week
+Overdue
+Daily targets
+Priority engine
+Next-action engine
+Start My Day
+
+Run build/tests/checks.
+
+## PHASE 5 — MAP
+
+Built-in world map
+Lead markers
+Clustering
+Map filters
+Lead map popup
+Manual map lead creation
+Coordinate selection
+Geocoding abstraction
+
+Map must work without a Google Maps key.
+
+Run build/tests/checks.
+
+## PHASE 6 — DISCOVERY
+
+Provider architecture
+Optional Google Places integration
+Review/import workflow
+Duplicate prevention
+Usage/error state
+
+Run build/tests/checks.
+
+## PHASE 7 — OPERATIONS
+
+Pipeline
+Notifications
+Analytics
+CSV import/export
+Bulk actions
+
+Run build/tests/checks.
+
+## PHASE 8 — AUTOMATION
+
+Automation settings
+Backend job architecture
+Run logs
+Limits
+Error handling
+
+Do not force paid functionality.
+
+Run build/tests/checks.
+
+## PHASE 9 — HARDENING
+
+Security rules
+Indexes
+Performance
+Accessibility
+Responsive QA
+Error states
+Loading states
+Empty states
+Deployment configuration
+
+Run final production build.
+
+---
+
+# 64. TEST CRITICAL FLOWS
+
+Before considering the project complete, manually/automatically verify where possible:
+
+Login
+Unauthorized access blocked
+Logout
+Create lead
+Edit lead
+Archive lead
+Search lead
+Filter leads
+Status change
+Activity creation
+Add note
+Schedule follow-up
+Complete follow-up
+Overdue calculation
+Priority calculation
+Start My Day progression
+Daily target calculation
+Pipeline drag/drop
+Map loads
+Map marker displays
+Map-created lead saves
+Lead location displays
+CSV import validation
+Duplicate detection
+CSV export
+Mobile navigation
+Desktop navigation
+Refresh/session restoration
+
+---
+
+# 65. NO FAKE DATA POLICY
+
+Production UI must never rely on hard-coded fake KPI numbers.
+
+If database is empty:
+
+show zeros and useful empty states.
+
+Do not seed fake businesses unless a clearly isolated development-only seed script is explicitly requested.
+
+No fake:
+
+phone
+WhatsApp
+email
+business
+location
+activity
+sales
+analytics
+
+---
+
+# 66. USER EXPERIENCE GOAL
+
+The final application should feel like:
+
+# REHMAN GWS LEAD OPERATIONS COMMAND CENTER
+
+Morning workflow:
+
+Open CRM.
+
+Immediately see:
+
+What is my target?
+What is overdue?
+Who should I contact first?
+Why are they important?
+Which method should I use?
+What happened last time?
+What is the next action?
+How much work remains?
+
+Press:
+
+START MY DAY
+
+Work through leads sequentially.
+
+CRM automatically records legitimate actions and organizes the next steps.
+
+When geographic research is required:
+
+Open:
+
+LEAD MAP
+
+Browse the world/country/city inside the CRM.
+
+See existing CRM leads.
+
+Select locations.
+
+Create manual leads without leaving the application.
+
+When an external discovery provider is configured, discover legitimate business records and review/import them.
+
+At the end of the day:
+
+See exactly what was accomplished and what remains.
+
+The administrator should not need spreadsheets, paper notes, or memory for routine lead operations.
+
+---
+
+# 67. FINAL DELIVERY REQUIREMENTS
+
+Do not finish by only describing the implementation.
+
+Actually implement it.
+
+At completion provide:
+
+1. Working application code.
+2. Production build status.
+3. Firebase configuration instructions.
+4. Firestore schema.
+5. Firestore Security Rules.
+6. Required Firestore indexes.
+7. Environment example.
+8. Deployment instructions.
+9. Map/provider attribution/configuration requirements.
+10. Optional Google Places setup instructions.
+11. Any features that require a paid/external service clearly labeled OPTIONAL.
+12. Known limitations, if any.
+13. Final verification checklist.
+
+Never claim a feature is working if it has not actually been implemented/tested.
+
+---
+
+# 68. MOST IMPORTANT IMPLEMENTATION PRINCIPLE
+
+Reliability is more important than rushing.
+
+Do not attempt to generate the entire CRM as one enormous fragile component.
+
+Build modularly.
+
+After each phase:
+
+IMPLEMENT → BUILD → CHECK → FIX → VERIFY → CONTINUE.
+
+Never knowingly continue while the project has unresolved blocking compilation errors.
+
+Preserve working code.
+
+Keep the core CRM usable even when optional integrations are missing.
+
+The finished result must be a functional, secure, scalable, premium private CRM for REHMAN GWS — not a dashboard mockup.

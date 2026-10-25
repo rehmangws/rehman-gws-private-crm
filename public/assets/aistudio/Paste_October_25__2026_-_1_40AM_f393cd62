@@ -1,0 +1,1345 @@
+# REHMAN GWS — LEAD FINDER EMERGENCY PERFORMANCE + DATA FIX
+
+The existing CRM and Lead Finder are already built.
+
+DO NOT rebuild the website.
+
+DO NOT redesign unrelated CRM pages.
+
+DO NOT add more visual features until the current Lead Finder is stable.
+
+There are currently TWO CRITICAL PROBLEMS:
+
+1. The map is hanging, freezing, becoming stuck, and search is slow/unreliable.
+2. Discovered leads frequently do not contain phone, email, or WhatsApp information.
+
+Your immediate job is to:
+
+DIAGNOSE → FIX → TEST → OPTIMIZE
+
+the existing Lead Finder.
+
+Do not hide the problems with loading animations.
+
+Fix the underlying implementation.
+
+==================================================
+1. FIRST — INSPECT CURRENT IMPLEMENTATION
+==================================================
+
+Before editing anything inspect:
+
+package.json
+
+map components
+
+Lead Finder components
+
+map library
+
+tile provider
+
+business discovery provider
+
+geocoding provider
+
+search implementation
+
+marker implementation
+
+clustering implementation
+
+Firestore queries
+
+business normalization code
+
+duplicate detection
+
+React hooks
+
+useEffect dependencies
+
+event listeners
+
+API/request code
+
+AbortController usage
+
+caching
+
+Firebase writes
+
+console errors
+
+network errors
+
+environment variables
+
+Do NOT assume the cause.
+
+Find the actual bottleneck first.
+
+==================================================
+2. PERFORMANCE IS NOW PRIORITY #1
+==================================================
+
+The map must remain smooth while:
+
+Panning
+Zooming
+Searching
+Opening business details
+Changing category
+Switching map layers
+Displaying business results
+
+Target:
+
+Normal map navigation should feel close to 60 FPS on a typical laptop where practical.
+
+Map interaction must NEVER wait for business search to complete.
+
+==================================================
+3. STOP SEARCHING ON EVERY MAP MOVEMENT
+==================================================
+
+CRITICAL:
+
+Do NOT automatically query businesses on every:
+
+move
+mousemove
+drag
+zoom
+zoomend
+bounds change
+render
+
+unless explicitly configured and safely debounced.
+
+Default behavior:
+
+User moves map.
+
+↓
+
+Map moves instantly.
+
+↓
+
+No business API request during movement.
+
+↓
+
+After movement finishes show:
+
+SEARCH THIS AREA
+
+↓
+
+Only after administrator clicks it:
+
+run business discovery.
+
+This is mandatory.
+
+==================================================
+4. REMOVE REQUEST LOOPS
+==================================================
+
+Audit every useEffect.
+
+Find and eliminate:
+
+infinite useEffect loops
+state → fetch → state → fetch loops
+map bounds dependency loops
+duplicate event listeners
+duplicate API calls
+duplicate Firestore listeners
+
+Every map listener added must be properly removed during cleanup.
+
+Do not recreate the map instance on normal React renders.
+
+The map instance should initialize ONCE.
+
+==================================================
+5. CANCEL OLD SEARCHES
+==================================================
+
+Implement AbortController or the appropriate cancellation mechanism.
+
+Example:
+
+Search A starts.
+
+Administrator changes location.
+
+Search B starts.
+
+Search A must be cancelled/ignored.
+
+Old responses must NEVER overwrite newer search results.
+
+Track request/search ID.
+
+Only the newest active search may update results.
+
+==================================================
+6. ONE SEARCH AT A TIME
+==================================================
+
+Prevent multiple clicks from creating parallel duplicate searches.
+
+While searching:
+
+Disable FIND LEADS / SEARCH THIS AREA appropriately.
+
+Display:
+
+Searching...
+
+When finished:
+
+enable controls again.
+
+If search fails:
+
+restore controls.
+
+Use finally blocks correctly.
+
+==================================================
+7. HARD RESULT LIMIT
+==================================================
+
+Never render unlimited businesses.
+
+Introduce:
+
+MAX_VISIBLE_RESULTS
+
+Use a safe initial value such as:
+
+100–200 business candidates
+
+depending on map performance.
+
+If more results exist:
+
+paginate
+
+or provide:
+
+LOAD MORE
+
+Do not place thousands of React marker components on the map simultaneously.
+
+==================================================
+8. USE REAL MARKER CLUSTERING
+==================================================
+
+Marker clustering is mandatory.
+
+At low zoom:
+
+show clusters.
+
+Example:
+
+43
+128
+327
+
+Do not render hundreds of overlapping individual DOM markers.
+
+At high zoom:
+
+expand only relevant visible markers.
+
+==================================================
+9. ONLY RENDER VISIBLE RESULTS
+==================================================
+
+Do not render markers far outside the current useful viewport.
+
+Keep discovered data in state/cache where appropriate, but render only:
+
+visible/current relevant results.
+
+Use viewport/bounds filtering efficiently.
+
+Do NOT perform expensive filtering repeatedly inside every marker render.
+
+==================================================
+10. DO NOT USE HEAVY CUSTOM DOM FOR EVERY DOT
+==================================================
+
+If the current implementation creates complex React components for every business marker:
+
+optimize it.
+
+Business dots should be lightweight.
+
+Do not attach:
+
+large popup
+full business card
+images
+multiple buttons
+
+to every marker simultaneously.
+
+Marker:
+
+small lightweight dot.
+
+Only selected business loads/renders the full details panel.
+
+==================================================
+11. SELECTED BUSINESS ONLY
+==================================================
+
+Do not render 100 full popup components.
+
+Maintain:
+
+selectedBusinessId
+
+Only one detailed business drawer/popup should be active at a time.
+
+==================================================
+12. CACHE SEARCH RESULTS
+==================================================
+
+Create a normalized cache key from:
+
+provider
+geographic area/bounds
+category/query
+relevant filters
+
+If the same area/query was searched recently:
+
+reuse cached permissible results.
+
+Avoid immediately requesting identical data again.
+
+Add reasonable expiration.
+
+Do not violate provider caching terms.
+
+==================================================
+13. SEARCH INPUT DEBOUNCE
+==================================================
+
+Location autocomplete/geocoding:
+
+debounce approximately 300–500 ms.
+
+Do NOT make a network request after every keystroke.
+
+Require at least a reasonable number of characters before searching.
+
+Ignore stale autocomplete responses.
+
+==================================================
+14. DO NOT GEOCODE EVERY BUSINESS
+==================================================
+
+CRITICAL:
+
+If business discovery results already contain:
+
+latitude
+longitude
+address
+
+DO NOT run another geocoding request for each business.
+
+That creates an N+1 request problem.
+
+Use provider-returned coordinates directly.
+
+==================================================
+15. DO NOT FETCH DETAILS FOR EVERY BUSINESS
+==================================================
+
+This is extremely important.
+
+Initial business search should load only summary information necessary for:
+
+marker
+name
+category
+basic location
+provider ID
+
+Do NOT immediately make a separate detail request for every discovered business.
+
+Use:
+
+SEARCH → SUMMARY RESULTS
+
+Then:
+
+CLICK BUSINESS → FETCH DETAILS FOR THIS BUSINESS ONLY
+
+This should dramatically reduce network load.
+
+==================================================
+16. LAZY BUSINESS DETAILS
+==================================================
+
+When administrator clicks a business:
+
+check details cache.
+
+If details are cached:
+
+show immediately.
+
+Otherwise:
+
+show detail skeleton.
+
+Fetch details for ONLY that selected business.
+
+Then cache them when permitted.
+
+==================================================
+17. PHONE NUMBER REPAIR
+==================================================
+
+Phone numbers must come only from legitimate configured sources.
+
+Create a clear data pipeline:
+
+BUSINESS SEARCH RESULT
+↓
+Business Summary
+↓
+User selects business
+↓
+Business Details Provider
+↓
+Extract legitimate phone if available
+↓
+Normalize phone
+↓
+Display
+
+If provider has a separate details endpoint containing phone:
+
+use it only when appropriate.
+
+Do NOT fabricate a phone.
+
+Display:
+
+Phone: Not Available
+
+only after the configured detail source genuinely has no phone.
+
+==================================================
+18. WEBSITE REPAIR
+==================================================
+
+When selected business details are loaded:
+
+extract legitimate website when provider supplies it.
+
+Normalize:
+
+https/http
+domain
+trailing slash where useful
+
+Store:
+
+website
+websiteDomain
+
+Use websiteDomain for duplicate detection.
+
+==================================================
+19. EMAIL — DO NOT EXPECT IT FROM MAP DATA
+==================================================
+
+Do NOT pretend normal map/POI search guarantees email addresses.
+
+Implement email as:
+
+email: nullable
+
+If the active provider does not supply email:
+
+Email: Not Available
+
+Keep architecture ready for a future legitimate email/business enrichment provider.
+
+Do not generate:
+
+info@businessname.com
+
+sales@businessname.com
+
+contact@businessname.com
+
+unless that exact address was legitimately obtained.
+
+==================================================
+20. WHATSAPP — DO NOT GUESS
+==================================================
+
+Phone and WhatsApp remain separate.
+
+If business provider returns:
+
+phone = +971...
+
+store it only as phone.
+
+DO NOT copy it automatically into WhatsApp.
+
+Display:
+
+Phone: +971...
+WhatsApp: Not Confirmed
+
+Provide button:
+
+USE PHONE AS WHATSAPP
+
+Only after administrator explicitly confirms:
+
+whatsapp = normalized phone
+whatsappConfirmed = true
+
+==================================================
+21. CONTACT DATA BADGES
+==================================================
+
+Every result should quickly show:
+
+PHONE ✓ / —
+WEBSITE ✓ / —
+EMAIL ✓ / —
+WHATSAPP ✓ / —
+
+But these indicators must represent REAL data only.
+
+This allows administrator to prioritize contactable leads.
+
+==================================================
+22. CONTACTABLE LEADS FILTER
+==================================================
+
+Create:
+
+CONTACTABLE
+
+filter.
+
+Options:
+
+Has Phone
+Has Website
+Has Email
+Has Confirmed WhatsApp
+Any Contact Method
+
+If I need leads I can immediately call:
+
+select:
+
+HAS PHONE
+
+Best Leads ranking should then prioritize businesses with real phone numbers.
+
+==================================================
+23. TWO-STAGE LEAD DISCOVERY
+==================================================
+
+Change architecture to:
+
+STAGE A — FAST DISCOVERY
+
+Fetch lightweight business summaries.
+
+Render map quickly.
+
+STAGE B — ON-DEMAND ENRICHMENT
+
+Only when:
+
+business selected
+
+or
+
+administrator explicitly requests enrichment
+
+fetch additional available details.
+
+Do NOT enrich every marker automatically.
+
+==================================================
+24. OPTIONAL BULK DETAIL FETCH MUST BE CONTROLLED
+==================================================
+
+If provider permits bulk/detail enrichment:
+
+do not automatically enrich 200 businesses simultaneously.
+
+Use a small concurrency queue.
+
+Example:
+
+3–5 detail requests at a time
+
+with:
+
+rate-limit handling
+retry/backoff
+cancellation
+progress
+
+But default Lead Finder should remain:
+
+ON-DEMAND DETAILS.
+
+==================================================
+25. SEARCH RESPONSE NORMALIZATION
+==================================================
+
+Normalize all provider results into:
+
+BusinessCandidate {
+  id
+  externalId
+  provider
+  businessName
+  primaryCategory
+  categories
+  latitude
+  longitude
+  address
+  city
+  state
+  country
+  phone
+  whatsapp
+  whatsappConfirmed
+  email
+  website
+  rating
+  reviewCount
+  openingHours
+  businessStatus
+  detailsLoaded
+}
+
+All optional fields must allow null.
+
+Do NOT create fake fallback strings inside the data model.
+
+Formatting such as "Not Available" belongs in UI.
+
+==================================================
+26. PROVIDER CAPABILITY SYSTEM
+==================================================
+
+Different providers return different fields.
+
+Create capability metadata:
+
+supportsBusinessSearch
+supportsBusinessDetails
+supportsPhone
+supportsWebsite
+supportsEmail
+supportsOpeningHours
+supportsRating
+supportsReviews
+
+The UI should understand provider limitations.
+
+Example:
+
+If active provider does not provide emails:
+
+do not repeatedly try to fetch email.
+
+==================================================
+27. SATELLITE MUST NOT BLOCK LEAD SEARCH
+==================================================
+
+Satellite tiles and business discovery are separate systems.
+
+If satellite tiles are slow:
+
+business search should still work.
+
+If business provider is slow:
+
+map should still pan/zoom.
+
+Never block map rendering while waiting for lead discovery.
+
+==================================================
+28. SATELLITE PERFORMANCE
+==================================================
+
+Do not request unnecessarily high-resolution tiles.
+
+Use the mapping library's normal tile loading strategy.
+
+Do not preload enormous surrounding areas.
+
+Cancel/ignore obsolete tile work where supported.
+
+Do not apply expensive CSS filters to hundreds of map tiles.
+
+Avoid excessive blur/glass effects over the map itself.
+
+==================================================
+29. REMOVE EXPENSIVE VISUAL EFFECTS FROM MAP
+==================================================
+
+Premium appearance must NOT hurt performance.
+
+Avoid:
+
+backdrop-filter over the entire map
+large animated shadows
+continuous marker glow animation
+CSS blur on map container
+large transparent overlays
+constant pulse animation on every marker
+
+Only selected/urgent marker may use a restrained animation.
+
+==================================================
+30. FIRESTORE PERFORMANCE
+==================================================
+
+Do not subscribe to the complete leads database just to determine map duplicates.
+
+Use an efficient duplicate/index strategy.
+
+Maintain normalized searchable identifiers such as:
+
+googlePlaceId/externalId
+phoneNormalized
+websiteDomain
+businessAddressKey
+
+Use appropriate indexed queries.
+
+Do not execute several Firestore reads for every marker during render.
+
+==================================================
+31. DUPLICATE LOOKUP BATCHING
+==================================================
+
+Do not run:
+
+1 business → 1 Firestore query
+
+for 200 businesses.
+
+That creates excessive reads and poor performance.
+
+Instead design an efficient strategy such as:
+
+preloaded/indexed identifier sets for the relevant result batch
+
+or
+
+controlled batched duplicate resolution
+
+within Firestore query constraints.
+
+Then annotate candidates:
+
+isInCRM
+existingLeadId
+
+==================================================
+32. SEARCH STATUS DEBUG PANEL
+==================================================
+
+In development mode only create a compact diagnostic panel showing:
+
+Current provider
+Search request duration
+Businesses returned
+Markers rendered
+Details requests
+Cache hits
+Cancelled requests
+Firestore reads where measurable
+Current zoom
+Current bounds
+
+Do NOT show this diagnostic panel in normal production mode.
+
+Use it to identify bottlenecks.
+
+==================================================
+33. ERROR LOGGING
+==================================================
+
+Log meaningful development errors for:
+
+Map initialization failure
+Tile failure
+Business search failure
+Details fetch failure
+Geocoding failure
+Rate limit
+Timeout
+Firestore failure
+
+Do not spam console with repeated identical errors.
+
+==================================================
+34. SEARCH TIMEOUT
+==================================================
+
+Network searches must not spin forever.
+
+Use a reasonable timeout.
+
+If timeout occurs:
+
+stop loading.
+
+Show:
+
+"Search took too long. Try a smaller area."
+
+Buttons:
+
+RETRY
+ZOOM IN
+
+==================================================
+35. AREA TOO LARGE PROTECTION
+==================================================
+
+If administrator searches an enormous viewport:
+
+do not send a huge request.
+
+Show:
+
+"Zoom in to find businesses faster."
+
+This should prevent searches at:
+
+world
+continent
+very large country-level viewport
+
+Lead discovery should operate at:
+
+city
+district
+neighborhood
+commercial area
+
+scale.
+
+==================================================
+36. FAST LEAD FINDING DEFAULTS
+==================================================
+
+Default Lead Finder should open with performance-friendly settings:
+
+Auto Search: OFF
+
+New Only: ON
+
+Clustering: ON
+
+Max Initial Results: 100
+
+Details Loading: On Click
+
+Map Effects: Performance Optimized
+
+Do not default to maximum visual/data load.
+
+==================================================
+37. BEST LEADS RANKING UPDATE
+==================================================
+
+Do not require email/WhatsApp for a candidate to be useful.
+
+Rank based on actually available fields.
+
+Example transparent scoring:
+
+Not in CRM +30
+
+Phone available +25
+
+Website available +15
+
+Relevant category +15
+
+Complete address +5
+
+Active business +5
+
+Rating/reviews if legitimately available +5
+
+Then show reasons.
+
+Do not penalize a provider for fields it fundamentally cannot provide in a misleading way.
+
+==================================================
+38. FAST PHONE-FIRST MODE
+==================================================
+
+Add a one-click preset:
+
+# PHONE LEADS
+
+When activated:
+
+Has Phone = true
+New Only = true
+Sort = Best Leads
+Details strategy = optimized for provider capabilities
+
+Goal:
+
+Quickly show businesses with legitimate callable numbers.
+
+==================================================
+39. BUSINESS DETAILS UX
+==================================================
+
+When marker clicked:
+
+Open panel immediately using summary data.
+
+Do NOT wait for full details before opening panel.
+
+Show:
+
+ABC Restaurant
+Restaurant
+Dubai
+
+Then skeleton only for fields still loading:
+
+Phone
+Website
+Hours
+Rating
+
+As data arrives:
+
+fill fields.
+
+Map remains fully interactive.
+
+==================================================
+40. ADD TO CRM MUST BE FAST
+==================================================
+
+When administrator clicks:
+
+ADD & NEXT
+
+Do not refetch the entire map.
+
+Save lead.
+
+Update local candidate state:
+
+isInCRM = true
+
+Change marker color locally.
+
+Select next candidate.
+
+Perform background Firestore synchronization.
+
+If write fails:
+
+rollback local state.
+
+Show:
+
+"Could not save lead."
+
+Never claim success before confirmed write.
+
+==================================================
+41. SEARCH MUST NOT RESET MAP
+==================================================
+
+Fix any behavior where:
+
+opening details
+adding lead
+changing result
+closing drawer
+
+causes map to:
+
+jump to world view
+reinitialize
+lose zoom
+lose center
+
+Persist:
+
+center
+zoom
+bounds
+active search
+selected category
+
+during normal Lead Finder session.
+
+==================================================
+42. MAP CONTAINER RESIZE BUG
+==================================================
+
+If sidebar/detail panel opens/closes:
+
+properly notify map library of container size change.
+
+Do not recreate map.
+
+Use the mapping library's correct resize/invalidate-size mechanism.
+
+This is a common source of stuck/blank maps.
+
+==================================================
+43. FIX SEARCH ACCURACY
+==================================================
+
+Search flow should be deterministic:
+
+Location query
+↓
+Resolve geographic location
+↓
+Move map
+↓
+Confirm useful zoom
+↓
+Business query/category
+↓
+Search current bounded area
+↓
+Normalize results
+↓
+Render
+
+Do not mix geocoding search results and business discovery results into one ambiguous state.
+
+==================================================
+44. LOCATION + CATEGORY PARSING
+==================================================
+
+For:
+
+"Restaurants in Dubai Marina"
+
+parse:
+
+Category = Restaurants
+Location = Dubai Marina
+
+Do not send the complete natural-language phrase blindly to every provider if structured search is supported.
+
+==================================================
+45. NO SEARCH RESULT = HONEST STATE
+==================================================
+
+If provider returns zero:
+
+show:
+
+"No businesses returned by the current data source for this area."
+
+Provide:
+
+TRY NEARBY
+CHANGE CATEGORY
+ZOOM OUT SLIGHTLY
+CHANGE DATA PROVIDER
+
+Do not create placeholder markers.
+
+==================================================
+46. VERIFY ACTIVE BUSINESS PROVIDER
+==================================================
+
+Inspect what provider is CURRENTLY supplying businesses.
+
+Determine:
+
+What fields its search endpoint returns.
+
+What fields its detail endpoint returns.
+
+Whether phone is available.
+
+Whether website is available.
+
+Whether email is available.
+
+What its rate limits are.
+
+What usage restrictions apply.
+
+Do not code assumptions.
+
+Adapt UI to actual capabilities.
+
+==================================================
+47. CONTACT DATA DIAGNOSTIC
+==================================================
+
+During development, test at least several real returned businesses.
+
+For each verify:
+
+Search result has ID?
+Details request works?
+Phone returned?
+Website returned?
+Email supported?
+Opening hours returned?
+Rating returned?
+
+Document:
+
+SEARCH PROVIDER CAPABILITIES
+
+Phone: Supported / Not Supported
+Website: Supported / Not Supported
+Email: Supported / Not Supported
+WhatsApp: Not inferred unless explicitly supported/confirmed
+
+This will explain missing data instead of hiding it.
+
+==================================================
+48. IMPORTANT — EMAIL ENRICHMENT
+==================================================
+
+If current provider does not return business emails:
+
+DO NOT try to solve this by inventing them.
+
+Keep:
+
+Email Enrichment Provider
+
+as a separate optional architecture.
+
+If no legitimate enrichment provider is configured:
+
+Email = Not Available
+
+The core Lead Finder must still work.
+
+==================================================
+49. IMPORTANT — WHATSAPP ENRICHMENT
+==================================================
+
+Do not create a "WhatsApp finder" by testing random numbers or assuming every business phone uses WhatsApp.
+
+Use:
+
+confirmed provider data
+
+or
+
+administrator confirmation
+
+or
+
+a legitimate future integration.
+
+Until then:
+
+WhatsApp Unknown
+
+is correct.
+
+==================================================
+50. PERFORMANCE ACCEPTANCE TEST
+==================================================
+
+Before declaring the fix complete, test:
+
+Open Lead Finder.
+
+Pan map repeatedly.
+
+No freeze.
+
+Zoom repeatedly.
+
+No freeze.
+
+Open/close sidebar.
+
+Map resizes correctly.
+
+Search one city/category.
+
+Only one intended search request runs.
+
+Results render.
+
+Markers cluster.
+
+Click candidate.
+
+Panel opens immediately.
+
+Only selected business details are requested.
+
+Close panel.
+
+Map position remains.
+
+Select another business.
+
+Previous request cancels if still active.
+
+Add lead.
+
+No full map reload.
+
+Search another area.
+
+Old request cannot overwrite new results.
+
+Repeat searches.
+
+No accumulating event listeners.
+
+No increasing duplicate network calls.
+
+==================================================
+51. CONTACT DATA ACCEPTANCE TEST
+==================================================
+
+For real businesses returned by current provider:
+
+Verify phone mapping when provider actually returns phone.
+
+Verify website mapping when provider returns website.
+
+Verify email remains unavailable when provider does not provide it.
+
+Verify WhatsApp remains separate from phone.
+
+Verify:
+
+USE PHONE AS WHATSAPP
+
+works only after explicit admin action.
+
+Verify Add to CRM preserves legitimate contact data.
+
+Verify reopening saved lead shows same contact information.
+
+==================================================
+52. BUILD VERIFICATION
+==================================================
+
+After fixes run:
+
+production build
+TypeScript check
+lint if configured
+
+Fix all blocking errors.
+
+Check browser console.
+
+There must be no:
+
+infinite request loop
+repeated listener warning
+React key warning
+map initialization error
+unhandled promise rejection
+continuous Firestore read loop
+
+==================================================
+53. DO NOT ADD MORE FEATURES UNTIL STABLE
+==================================================
+
+This instruction is critical.
+
+FIRST make:
+
+Map fast
+Search reliable
+Business selection fast
+Phone mapping correct
+Website mapping correct
+CRM save correct
+
+Only after these are verified should additional Lead Finder features be added.
+
+==================================================
+54. FINAL REPORT
+==================================================
+
+After implementation tell me exactly:
+
+1. What caused the map freezing.
+2. Which files were changed.
+3. What was changed to reduce requests.
+4. Maximum markers/results now loaded.
+5. Which business provider is currently active.
+6. Whether that provider supplies phone.
+7. Whether that provider supplies website.
+8. Whether that provider supplies email.
+9. Why WhatsApp is or is not available.
+10. Which optional integration would be needed for missing data.
+11. Production build result.
+
+Do not say "fixed" unless the behavior was actually tested.
+
+==================================================
+55. PRIMARY OBJECTIVE
+==================================================
+
+The Lead Finder should optimize for:
+
+SPEED FIRST.
+
+The expected workflow is:
+
+Location
+→ Category
+→ FIND LEADS
+→ Fast lightweight results
+→ Click one business
+→ Load that business's full available details
+→ ADD & NEXT
+
+NOT:
+
+Search
+→ Fetch full details for hundreds of businesses
+→ Render hundreds of heavy components
+→ Freeze browser.
+
+Make the Lead Finder FAST, STABLE, and HONEST ABOUT AVAILABLE CONTACT DATA.

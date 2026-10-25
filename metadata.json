@@ -1,0 +1,6 @@
+{
+  "name": "REHMAN GWS CRM",
+  "description": "Production-grade private lead operations CRM for REHMAN GWS featuring command center, focus mode, pipeline, and interactive world lead map.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

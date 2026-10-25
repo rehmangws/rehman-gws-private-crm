@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for REHMAN GWS private access
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Role check: Admin allowlist
+    function isAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.email.lower() == 'rehmanglobal.contact@gmail.com' ||
+        request.auth.token.email.lower() == 'admin@rehmangws.com' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
+      );
+    }
+
+    // Leads collection: Only authorized admins may read, create, update, or soft-delete
+    match /leads/{leadId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+        request.resource.data.businessName is string &&
+        request.resource.data.businessName.size() > 0 &&
+        request.resource.data.createdBy is string;
+      allow update: if isAuthenticated() &&
+        request.resource.data.updatedAt is string;
+      allow delete: if isAdmin();
+    }
+
+    // Activities collection: Append-only audit trail
+    match /activities/{activityId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+        request.resource.data.leadId is string &&
+        request.resource.data.type is string &&
+        request.resource.data.timestamp is string;
+      allow update, delete: if false; // Immutable audit log
+    }
+
+    // Follow-ups collection
+    match /followUps/{followUpId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Categories collection
+    match /categories/{categoryId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Daily Targets & System Settings
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // User profiles & allowlist
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Default catch-all: Deny all unauthenticated or unhandled access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
